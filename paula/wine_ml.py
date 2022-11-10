@@ -3,6 +3,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import re
 
 from PIL import Image
 
@@ -207,13 +208,83 @@ def reviews_demo():
     #show the user what the results from the model are
     st.write("Based on your review, the estimated quality of this wine is: ")
 
+def recommendation_demo():
+    # header
+    st.write("# Wine Recommendations! ")
+    
+    # instruct the user on how to use the application
+    st.write(
+        """
+        What kind of wines do you like? 
 
+        Tune the variables below to your liking! 
+        Use the input box to describe what kind of wine you're looking for - taste, aroma, pairing, etc and we'll find the best match based on our inventory. 
+
+        If you're not sure what you're looking for, that's ok! We'll give you a recommendation anyways :)
+                
+    """
+    )
+
+    # give the user a text box to enter a list of terms
+    
+    terms_list = st.text_input("Enter any text information that describes the kind of wine you're looking for, and we'll show you our best match!", value="fruity merlot cheese")
+
+    # create a list from the data and capitalize the data for easy matching
+    terms_list_upper = terms_list.split()
+    terms_list_upper = [term.upper() for term in terms_list_upper]
+
+    # use historical dataset (with text data) for matching
+    df_reviews_searching = df_reviews.copy().drop(['points', 'price', 'id'], axis = 1)
+    df_reviews_searching = df_reviews_searching.loc[:,'country':'winery'].apply(lambda x: x.str.upper())
+
+    # assign a score to the best matches
+    #https://stackoverflow.com/questions/64146240/python-searching-data-frame-for-words-in-a-list-and-keep-track-of-words-found-an
+
+    # create additional columns to count the # of word matches with the terms the user input
+    review_cols = df_reviews_searching.columns
+    for col in review_cols:
+        # name the new columns (which just appends _words and _count to the old column names)
+        new_col_words = f"{col}_words"
+        new_col_count = f"{col}_count"
+        # calculate the number of times the search terms show up in each wine
+        df_reviews_searching[new_col_words] = df_reviews_searching[col].str.findall('({0})'.format('|'.join(terms_list_upper)), flags=re.IGNORECASE)
+        df_reviews_searching[new_col_count] = df_reviews_searching[new_col_words].str.len()
+
+    # TO DO: add tokenization aspects from Gautam
+    # TO DO: add neural network learnings from Jerome
+    
+    # calculate the overall "score"
+    df_reviews_searching["score"] = df_reviews_searching["description_count"] + df_reviews_searching["designation_count"] + df_reviews_searching["province_count"] + df_reviews_searching["region_1_count"] + df_reviews_searching["region_2_count"] + df_reviews_searching["taster_name_count"] + df_reviews_searching["taster_twitter_handle_count"] + df_reviews_searching["title_count"] + df_reviews_searching["variety_count"] + df_reviews_searching["winery_count"]
+
+    # rank them 
+    df_reviews_searching = df_reviews_searching.sort_values("score", ascending = False).head(1)
+
+    # display the most highly ranked wine to the user
+    st.write("Based on your preferences, we recommend this wine!")
+    st.write(f"Title: {df_reviews_searching.iloc[0, 8]}")
+    st.write(f"Variety: {df_reviews_searching.iloc[0, 9]}")
+    
+    st.write(f"Designation: {df_reviews_searching.iloc[0, 2]}")
+    st.write(f"Country of origin: {df_reviews_searching.iloc[0, 0]}")
+    st.write(f"Province: {df_reviews_searching.iloc[0, 3]}")
+    st.write(f"Region: {df_reviews_searching.iloc[0, 4]}, {df_reviews_searching.iloc[0, 5]}")
+    st.write(f"Winery: {df_reviews_searching.iloc[0, 10]}")
+    
+    
+    #st.write(f"Price: ${df_reviews_searching.iloc[0, 3]}")
+    
+    st.write(f"\nTaster name: {df_reviews_searching.iloc[0, 6]}")
+    st.write(f"\nTaster twitter handle: {df_reviews_searching.iloc[0, 7]}")
+    st.write(f"\nDescription: {df_reviews_searching.iloc[0, 1]}")
+    
+    
+    
 # Dictionary for sidebar
 page_names_to_funcs = {
     "Welcome!": intro,
     "Wine Quality Calculator": quality_demo,
     "Wine Quality Predictor": reviews_demo,
-    #"Other": data_frame_demo
+    "Wine Recommendation Page": recommendation_demo
 }
 
 # sidebar selector
