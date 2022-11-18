@@ -5,9 +5,30 @@ import pandas as pd
 import numpy as np
 import re
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from PIL import Image
 
 import pickle
+
+
+#from jerome's file
+from nltk.tokenize.treebank import TreebankWordDetokenizer
+from nltk.corpus import stopwords
+from nltk import word_tokenize
+#from wordcloud import WordCloud
+import nltk
+import tensorflow
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import layers, metrics
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+wine_data = pd.read_csv("wine_mag-data_first-150k.csv", index_col = False)
+
 
 # import statements for random forest model (for wine quality prediction)
 # import dataset
@@ -152,19 +173,19 @@ def reviews_demo():
     row = 4
 
     # create input fields for the user
-    country = st.text_input("Country", value=df_reviews.iloc[4,:]["country"])
+    country = "" #st.text_input("Country", value=df_reviews.iloc[4,:]["country"])
     description = st.text_input("Description", value=df_reviews.iloc[row,:]["description"])
-    designation = st.text_input("Designation", value=df_reviews.iloc[row,:]["designation"])
-    price = st.number_input("Price", min_value = 0.0, max_value = 1000000.00, value = df_reviews.iloc[row,:]["price"], step = 0.01)
-    province = st.text_input("Province", value=df_reviews.iloc[row,:]["province"])
-    region_1 = st.text_input("Region 1", value=df_reviews.iloc[row,:]["region_1"])
-    region_2 = st.text_input("Region 2", value=df_reviews.iloc[row,:]["region_2"])
+    designation = "" #st.text_input("Designation", value=df_reviews.iloc[row,:]["designation"])
+    price = "" #st.number_input("Price", min_value = 0.0, max_value = 1000000.00, value = df_reviews.iloc[row,:]["price"], step = 0.01)
+    province = "" #st.text_input("Province", value=df_reviews.iloc[row,:]["province"])
+    region_1 = "" #st.text_input("Region 1", value=df_reviews.iloc[row,:]["region_1"])
+    region_2 = "" #st.text_input("Region 2", value=df_reviews.iloc[row,:]["region_2"])
     #region_2 = st.text_input("Country", value="") #what's the difference between region 1 and 2?
-    taster_name = st.text_input("Taster Name", value=df_reviews.iloc[row,:]["taster_name"])
-    taster_twitter_handle = st.text_input("Taster Twitter Handle", value=df_reviews.iloc[row,:]["taster_twitter_handle"])
-    title = st.text_input("Title", value=df_reviews.iloc[row,:]["title"])
-    variety = st.text_input("Variety", value=df_reviews.iloc[row,:]["variety"])
-    winery = st.text_input("Winery", value=df_reviews.iloc[row,:]["winery"])
+    taster_name = "" #st.text_input("Taster Name", value=df_reviews.iloc[row,:]["taster_name"])
+    taster_twitter_handle = "" #st.text_input("Taster Twitter Handle", value=df_reviews.iloc[row,:]["taster_twitter_handle"])
+    title = "" #st.text_input("Title", value=df_reviews.iloc[row,:]["title"])
+    variety = "" #st.text_input("Variety", value=df_reviews.iloc[row,:]["variety"])
+    winery = "" #st.text_input("Winery", value=df_reviews.iloc[row,:]["winery"])
 
     # wrap the user input data into a dataframe for the model
     
@@ -183,9 +204,91 @@ def reviews_demo():
         'winery': [winery],
         }
 
-    input_for_review_pred = pd.DataFrame.from_dict(review_input)
-    # if needed, combine the user input data with the historical dataset (? might need this for scaling purposes?)
-    input_for_review_pred_full = pd.concat([input_for_review_pred, df_reviews.drop(["points"], axis = 1)])
+    if st.button("Calculate!"): #chardonnay
+        #show the user what the results from the model are
+        st.write("Based on your review, the estimated quality of this wine is: ")
+
+
+        input_for_review_pred = pd.DataFrame.from_dict(review_input)
+        # if needed, combine the user input data with the historical dataset (? might need this for scaling purposes?)
+        #wine_data = pd.concat([input_for_review_pred, df_reviews.drop(["points"], axis = 1)])
+
+        #nltk.download('stopwords')
+        #https://python-forum.io/thread-31052.html
+        #reference stopwords locally
+        from nltk.corpus import stopwords #saved
+        stopwords = set(stopwords.words('english'))
+        detokenizer = TreebankWordDetokenizer()
+
+        #Remove all stop words and 
+        def cleaning_words(description):
+            description = word_tokenize(description.lower())
+            description = [token for token in description if token not in stopwords and token.isalpha()]
+            return detokenizer.detokenize(description)
+
+        wine_data["new_desc"] = wine_data["description"].apply(cleaning_words)
+        input_for_review_pred["new_desc"] = input_for_review_pred["description"].apply(cleaning_words)
+        
+        review_train, review_test, y_train, y_test = train_test_split(wine_data["new_desc"], wine_data["points"], test_size=0.25, random_state=102300)
+        
+        # fit tokenizer on training dataset
+        tokenizer = Tokenizer(num_words=7000)
+        tokenizer.fit_on_texts(review_train)
+
+        X_train = tokenizer.texts_to_sequences(review_train)
+        prod_test = pd.concat([input_for_review_pred["new_desc"], review_test])
+        prod_test = tokenizer.texts_to_sequences(prod_test)
+
+        vocab_size = len(tokenizer.word_index) + 1  # reserve 0 empty index
+
+
+        # add testing dataset
+        #prod_test = pd.concat([input_for_review_pred["new_desc"], review_test])
+        # tokenize testing dataset
+        #prod_test = tokenizer.texts_to_sequences(prod_test)
+
+        max_len =70
+
+        X_train = pad_sequences(X_train, padding='post', maxlen=max_len)
+        prod_test = pad_sequences(prod_test, padding='post', maxlen=max_len)
+
+        ss = StandardScaler()
+        X_train = ss.fit_transform(X_train)
+        prod_test = ss.transform(prod_test)
+
+        embedding_dim = 100
+
+        model = Sequential()
+        model.add(layers.Embedding(vocab_size, embedding_dim, input_length=max_len))
+        model.add(layers.Conv1D(128, 5, activation='relu'))
+        model.add(layers.GlobalMaxPooling1D())
+        model.add(layers.Dense(10, activation='relu'))
+        model.add(layers.Dense(32, activation='relu'))
+        model.add(layers.Dense(1, kernel_initializer="normal"))
+
+        model.load_weights("model_wine.h5")
+
+        model.compile(optimizer='adam',loss='mse',metrics=[metrics.mse])
+        loss, acc = model.evaluate(X_train, y_train, verbose=False)
+        #print(loss)
+        #print(acc)
+        val = model.predict(prod_test[0:1])[0][0]
+        #st.write(prod_test[0:1])
+        st.write(val)
+
+    # if st.button("Show me how this compares with other wines"):
+    #     fig = plt.figure(figsize=(10, 4))
+    #     sns.scatterplot(data=df_reviews, x="points", y="price")
+    #     #plt.figure()
+    #     #width_plot = sns.barplot(x='sepal_width', y='species', data=iris)
+    #     #sns.scatterplot(data=df_reviews.head(), x="points", y="price", ax=ax)
+
+    #     st.pyplot(fig)
+
+
+
+
+
 
     ##TO DO need to figure out how to handle scaler with text input
     #input_for_review_pred_scaled_full = scaler.fit_transform(input_for_quality_pred_full)
@@ -204,24 +307,35 @@ def reviews_demo():
     # else:
     #     pred_quality_comment = "The parameters input correspond to a wine with HIGH quality (rating of 7 or greater)"
     
-    
-    #show the user what the results from the model are
-    st.write("Based on your review, the estimated quality of this wine is: ")
+
+        #run model
+
 
 def recommendation_demo():
     # header
     st.write("# Wine Recommendations! ")
+
+    # instruct the user on how to use the application
+    st.write("# What qualities are most important for you?")
+
+    # if st.button("acidity"): #chardonnay
+    #     st.write("Chardonnay")
+    # if st.button("fruity"):
+    #     st.write("testing")
+    # if st.button("aromas"):
+    #         st.write("testing")
+    # if st.button("palette"):
+    #     st.write("testing")
+    # if st.button("tannins"):
+    #     st.write("testing")
+
     
     # instruct the user on how to use the application
     st.write(
         """
         What kind of wines do you like? 
-
-        Tune the variables below to your liking! 
-        Use the input box to describe what kind of wine you're looking for - taste, aroma, pairing, etc and we'll find the best match based on our inventory. 
-
-        If you're not sure what you're looking for, that's ok! We'll give you a recommendation anyways :)
-                
+ 
+        Use the input box to describe what kind of wine you're looking for - taste, aroma, pairing, etc and we'll find the best match based on our inventory.                 
     """
     )
 
@@ -277,14 +391,167 @@ def recommendation_demo():
     st.write(f"\nTaster twitter handle: {df_reviews_searching.iloc[0, 7]}")
     st.write(f"\nDescription: {df_reviews_searching.iloc[0, 1]}")
     
+def stats_demo():
+    st.write("# Wine by the Numbers")
+
+    st.write("#### User our interactive dashboard to help you find the best wines that fit your tastes!")
+
+    st.text(" \n")
+    st.write("### Make a selection below to find the best wines associated with your preference:")
+
+    #documentation reference: https://discuss.streamlit.io/t/is-is-possible-i-place-a-button-or-check-box-at-any-positon-in-the-page/8032/2
+    col1, col2, col3, col4, col5 = st.columns(5) #no longer beta_columns
+    with col1:
+        but1 = st.button("acidity")
+    with col2:
+        but2 = st.button("fruity")
+    with col3:
+        but3 = st.button("aromas")
+    with col4: 
+        but4 = st.button("palate")
+    with col5:
+        but5 = st.button("tannins")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
     
+    if but1:
+        with col1:
+            st.write("Chardonnay")
+    if but2:
+        with col2:
+            st.write("Pinot Noir")
+    if but3:
+        with col3:
+            st.write("Red Blend")
+    if but4:
+        with col4:
+            st.write("Riesling")
+    if but5:
+        with col5:
+            st.write("Cabernet Sauvignon")
+
+    st.text(" \n")
+    st.write("### The Best Bang for your Buck!:")
+    
+    st.text(" \n")
+
+    # import matplotlib.pyplot as plt
+    # import seaborn as sns
+
+    #fig, ax = plt.figure(figsize=(16,7))
+    fig, ax = plt.subplots(figsize=(15,5))
+    sns.barplot(x=df_reviews.groupby("country").mean().sort_values(by="points",ascending=False).price.index[:10], y=df_reviews.groupby("country").mean().sort_values(by="points",ascending=False).points.values[:10], palette="Blues_r", ax=ax)#.set(title='Title of Plot')
+    #plt.xlabel("Countries")
+    #plt.xlabel('Countries', fontsize=30)
+    plt.ylabel("Average Points", fontsize=30)
+    plt.title("Top 10 Countries by Average Points:", fontsize=40)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.xlabel(None)
+    plt.xticks(rotation= 45, ha="right")
+    #ax=g
+    for p in ax.patches:
+        ax.annotate("%.1f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=17, color='gray', xytext=(0, 20),
+                 textcoords='offset points')
+    #
+    ax.set_ylim([85,95])
+    # ax=g
+    # for p in ax.patches:
+    #     ax.annotate("%.2f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+    #                 ha='center', va='center', fontsize=11, color='gray', xytext=(0, 20),
+    #                 textcoords='offset points')
+    # #plt.show()
+    st.pyplot(fig)
+
+    st.text(" \n")
+    fig2, ax2 = plt.subplots(figsize=(20,5))
+    sns.barplot(x=df_reviews.groupby("variety").mean().sort_values(by="points",ascending=False).price.index[:10], y=df_reviews.groupby("variety").mean().sort_values(by="points",ascending=False).points.values[:10], palette="Blues_r", ax=ax2)#.set(title='Title of Plot')
+    #plt.xlabel("Countries")
+    #plt.xlabel('Countries', fontsize=30)
+    plt.ylabel("Average Points", fontsize=30)
+    plt.title("Top 10 Varieties by Average Points:", fontsize=40)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.xlabel(None)
+    plt.xticks(rotation= 45, ha="right")
+    #ax=g
+    for p in ax2.patches:
+        ax2.annotate("%.1f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=17, color='gray', xytext=(0, 20),
+                 textcoords='offset points')
+    #
+    ax2.set_ylim([90,98])
+    # ax=g
+    # for p in ax.patches:
+    #     ax.annotate("%.2f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+    #                 ha='center', va='center', fontsize=11, color='gray', xytext=(0, 20),
+    #                 textcoords='offset points')
+    # #plt.show()
+    st.pyplot(fig2)
+
+
+    st.text(" \n")
+ #   st.write("### Top 10 Wineries by Points:")
+    fig3, ax3 = plt.subplots(figsize=(20,5))
+    sns.barplot(x=df_reviews.groupby("winery").mean().sort_values(by="points",ascending=False).price.index[:10], y=df_reviews.groupby("winery").mean().sort_values(by="points",ascending=False).points.values[:10], palette="Blues_r", ax=ax3)#.set(title='Title of Plot')
+    #plt.xlabel("Countries")
+    #plt.xlabel('Countries', fontsize=30)
+    plt.ylabel("Average Points", fontsize=30)
+    plt.title("Top 10 Wineries by Average Points:", fontsize=40)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.xlabel(None)
+    plt.xticks(rotation= 45, ha="right")
+    #ax=g
+    for p in ax3.patches:
+        ax3.annotate("%.1f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=17, color='gray', xytext=(0, 20),
+                 textcoords='offset points')
+    #
+    ax3.set_ylim([90, 100])
+    # ax=g
+    # for p in ax.patches:
+    #     ax.annotate("%.2f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+    #                 ha='center', va='center', fontsize=11, color='gray', xytext=(0, 20),
+    #                 textcoords='offset points')
+    # #plt.show()
+    st.pyplot(fig3)
+
+    st.text(" \n")
+    #st.write("### The Best Bang for your Buck!:")
+    df_reviews_2 = df_reviews[np.isfinite(df_reviews["price"])]
+    df_reviews_2["points/price"] = df_reviews_2.points / df_reviews_2.price
+    df_reviews_2.groupby("country").mean().sort_values(by="points/price", ascending=False)
+    
+    fig4, ax4 = plt.subplots(figsize=(20,5))
+    sns.barplot(x=df_reviews_2.groupby("country").mean().sort_values(by="points/price", ascending=False)["points/price"].index[:10], y=df_reviews_2.groupby("country").mean().sort_values(by="points/price", ascending=False)["points/price"].values[:10], palette="Blues_r", ax=ax4)
+    #plt.xlabel("Countries")
+    #plt.xlabel('Countries', fontsize=30)
+    plt.ylabel("Average Points per Dollar", fontsize=30)
+    plt.title("Top 10 Countries by Average Points per Dollar:", fontsize=40)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.xlabel(None)
+    plt.xticks(rotation= 45, ha="right")
+    #ax=g
+    for p in ax4.patches:
+        ax4.annotate("%.1f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=17, color='gray', xytext=(0, 20),
+                 textcoords='offset points')
+    #
+    ax4.set_ylim([4, 12])
+    # ax=g
+    # for p in ax.patches:
+    #     ax.annotate("%.2f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+    #                 ha='center', va='center', fontsize=11, color='gray', xytext=(0, 20),
+    #                 textcoords='offset points')
+    # #plt.show()
+    st.pyplot(fig4)
     
 # Dictionary for sidebar
 page_names_to_funcs = {
     "Welcome!": intro,
     "Wine Quality Calculator": quality_demo,
     "Wine Quality Predictor": reviews_demo,
-    "Wine Recommendation Page": recommendation_demo
+    "Wine Recommendation Page": recommendation_demo,
+    "Wine by the Numbers": stats_demo,
 }
 
 # sidebar selector
