@@ -4,6 +4,16 @@ As an individual, it might be easier to try a new wine, even without a review. B
 
 After reviewing wine datasets available online, the project team used knowledge that they acquired from the FinTech Bootcamp program at Rice University to create various models that would help people make better decisions about wine and their purchases. The models have been integrated into a user-friendly streamlit application that can be deployed on localhost.  
 
+# Installation instructions
+
+Use `git clone` to download the project repository to download the associated files. 
+
+The models were developed using a selection of jupyter notebook files that are included in this repository. 
+
+The files located in the streamlit application folder (see Paula's folder) are enough to run the streamlit application. The environment needed to run the streamlit application can be created by creating a new environment using Python version 3.7.13 and installing tensorflow version 2.9.2. 
+
+To run the streamlit applicaiton, `cd` into the streamlit application folder and type `streamlit run wine_ml.py`. A browser should open with the application deployed on localhost. 
+
 # Random Forest Model For predicting 
 build a random forest model to predict the rating of wine
 based on important factors that made a red or white wine the best in terms of quality.
