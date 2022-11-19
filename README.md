@@ -1,5 +1,9 @@
 # WineOnTap
 
+As an individual, it might be easier to try a new wine, even without a review. But as a business, can you take that chance? Something new can be a competitive advantage for you, but could still be a risk if it's a flop.
+
+After reviewing wine datasets available online, the project team used knowledge that they acquired from the FinTech Bootcamp program at Rice University to create various models that would help people make better decisions about wine and their purchases. The models have been integrated into a user-friendly streamlit application that can be deployed on localhost.  
+
 # Random Forest Model For predicting 
 build a random forest model to predict the rating of wine
 based on important factors that made a red or white wine the best in terms of quality.
