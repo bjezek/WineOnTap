@@ -17,8 +17,8 @@ based on important factors that made a red or white wine the best in terms of qu
 ![image](https://user-images.githubusercontent.com/106267420/202860038-2cd0f08c-65cc-4c46-9410-274603ee57a0.png)
 
 # Streamlit App for wine reccomendation system
-![image](https://user-images.githubusercontent.com/106267420/202860234-86ff3754-2a56-40e1-bec2-fadb55b66ac5.png)
-![image](https://user-images.githubusercontent.com/106267420/202860248-14e22bfc-be19-424b-92a9-d32b61ce5986.png)
+![image](https://user-images.githubusercontent.com/106267420/202860312-3c62f7df-7b40-438c-94ad-41926b87617e.png)
+![image](https://user-images.githubusercontent.com/106267420/202860330-62bb7b66-d667-48ac-b51f-6c4847f237f2.png)
 
 
 
