@@ -12,7 +12,11 @@ based on important factors that made a red or white wine the best in terms of qu
 ![image](https://user-images.githubusercontent.com/106267420/202585953-d743f81e-f808-4531-97cb-da5a06f8327b.png)
 ![image](https://user-images.githubusercontent.com/106267420/202586455-96f38142-58f3-4dda-9609-55aef970238f.png)
 
-#NLP application to see wine to get trigger words for reccomendations
+# NLP application to see wine rating per price/ratio
+![image](https://user-images.githubusercontent.com/106267420/202860008-45bf8185-e696-45bc-831f-bbe1ddc38ee0.png)
+![image](https://user-images.githubusercontent.com/106267420/202860038-2cd0f08c-65cc-4c46-9410-274603ee57a0.png)
+
+
 
 
 
