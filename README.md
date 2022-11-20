@@ -48,17 +48,27 @@ based on important factors that made a red or white wine the best in terms of qu
 ![image](https://user-images.githubusercontent.com/106267420/202585953-d743f81e-f808-4531-97cb-da5a06f8327b.png)
 ![image](https://user-images.githubusercontent.com/106267420/202586455-96f38142-58f3-4dda-9609-55aef970238f.png)
 
-## Natural Language processing
+## Sentiment Analysis 
 
-Natural language processing was applied on the wine reviews dataset to determine the best type of wine that is associated with personal preferences. 
+Sentiment Analysis was applied on the wine reviews dataset to determine the best type of wine that is associated with personal preferences of a specific attribute (acidity, aroma, etc) 
 
-For example, if you like a fruity wine, based on tasting reviews, X wines are the most popular wines that suit your tastes.
+For example, if you like a fruity wine, based on tasting reviews, sentiment scores, and filtering, X wines are the most popular wines that suit your tastes.
 
 (See Gautam's folder for jupyter notebook files.) 
 
-### NLP application to see wine rating per price/ratio
-![image](https://user-images.githubusercontent.com/106267420/202860008-45bf8185-e696-45bc-831f-bbe1ddc38ee0.png)
-![image](https://user-images.githubusercontent.com/106267420/202860038-2cd0f08c-65cc-4c46-9410-274603ee57a0.png)
+
+<img width="1062" alt="Screen Shot 2022-11-15 at 7 56 24 PM" src="https://user-images.githubusercontent.com/107082333/202930328-b1961369-1ad6-4769-bae7-a424d8293459.png">
+
+![Image 11-15-22 at 7 32 PM](https://user-images.githubusercontent.com/107082333/202930391-3215e7fc-b26a-473c-856f-05960b4e2507.jpg)
+
+![Image 11-15-22 at 7 32 PM](https://user-images.githubusercontent.com/107082333/202930382-c09c51e7-faa8-4dc3-958b-063bd0b61b5f.jpg)
+
+
+
+
+
+
+
 
 ## Neural Network Models
 
