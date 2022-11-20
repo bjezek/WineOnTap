@@ -80,23 +80,41 @@ Neural network models were applied to the wine tasting reviews dataset to predic
 
 A Streamlit application was created that combined the results of these models into a user-friendly application.
 
-The video X shows how the application can be used and shows the models in action. 
+The video in the root directory of the project titled `streamlit-app-screen-recording.wbm` shows how the application can be used and shows the models in action. 
 
 ## Model Integration
 
 The models created during application development were integrated into the Streamlit application as follows: 
-* Random Forest Model
+* Random Forest Model 
     * Model was exported as a pickle file and imported into the notebook
+    * Model predicts the quality of a wine based on chemical composition
+    * See the model in action! Check out this section of the video: 0:11 - 0:41
 * Natural Language Processing Model
     * Model results were incorported into the application in the form of buttons to help the user determine which wines they should consider based on their prefereces
+    * Model results were incorporated into the application to match user inputted preferences based on the sentiment of the tasting reviews data
+    * Model recommends varieties of wine and wines themselves based on the reviews with the highest sentiment
+    * See the model in action! Check out this section of the video: 2:56 - 5:30
 * Neural Network Model
     * Model was exported as a .h5 file and imported into the notebook
+    * Model predicts the estimated quality of a wine based on a user review
+    * See the model in action! Check out this sectino of the video: 0:41 - 2:30
 
 ## User Input Capture & Display of Model Results
 
 User input was captured mainly using `st.number_input` or `st.text_input`. That information was then used to create a dataframe (similar in structure to original model development) that was then fed to the model for prediction purposes. To honor the way the models were created, the data was scaled with the testing data. The first row of the dataset fed to the models for prediction purposes contains the user-inputted data, which is then returned within the streamlit application to the user.   
 
 One potential optimization is to export the fitted `standardscaler()` model and import that into the notebook. Due to issues experienced during application development the standardscaler() model is re-created within the streamlit application (as it was created in the original workbooks done by project team members).
+
+## Video highlights
+
+See the models in action! Check out the following time ranges in the video to see each model in action: 
+
+Random forest (Brandon): 0:11 - 0:41
+Natural language processing / Wine by the Numbers (Gautam): 2:56 - 5:30
+Neural Network Model (Jerome): 0:41 - 2:30
+
+(Keep in mind it takes a few minutes to run the neural network models and natural language processing models so please be patient.)
+
 
 
 
