@@ -24,9 +24,12 @@ To run the streamlit applicaiton, `cd` into the streamlit application folder and
 
 The following files were used to develop the application models, which are readily available online: 
 
-* kaggle_1 (chemical composition data)
-* kaggle_2 (wine reviews data)
-* kaggle_3 (wine reviews data)
+* [Chemical composition data](https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/)
+    * Sources downloaded from this location for `winequality-red.csv` and `winequality-white.csv`
+* [Wine reviews data](https://www.kaggle.com/datasets/mysarahmadbhat/wine-tasting)
+    * Sources downloaded from this location for `winemag-data-130k-v2.csv`
+* [Wine reviews data](https://www.kaggle.com/datasets/zynicide/wine-reviews)
+    * Sources downloaded from this location for `wine_mag-data_first-150k.csv`
 
 Citations for work referenced in neural network model development are located in Jerome's folder.
 
@@ -52,7 +55,7 @@ based on important factors that made a red or white wine the best in terms of qu
 
 Sentiment Analysis was applied on the wine reviews dataset to determine the best type of wine that is associated with personal preferences of a specific attribute (acidity, aroma, etc) 
 
-For example, if you like a fruity wine, based on tasting reviews, sentiment scores, and filtering, X wines are the most popular wines that suit your tastes.
+For example, if you like a fruity wine, based on tasting reviews, sentiment scores, and filtering, a pinot noir wine likely suits your tastes.
 
 (See Gautam's folder for jupyter notebook files.) 
 
@@ -62,13 +65,6 @@ For example, if you like a fruity wine, based on tasting reviews, sentiment scor
 ![Image 11-15-22 at 7 32 PM](https://user-images.githubusercontent.com/107082333/202930391-3215e7fc-b26a-473c-856f-05960b4e2507.jpg)
 
 ![Image 11-15-22 at 7 32 PM](https://user-images.githubusercontent.com/107082333/202930382-c09c51e7-faa8-4dc3-958b-063bd0b61b5f.jpg)
-
-
-
-
-
-
-
 
 ## Neural Network Models
 
@@ -110,7 +106,9 @@ One potential optimization is to export the fitted `standardscaler()` model and 
 See the models in action! Check out the following time ranges in the video to see each model in action: 
 
 Random forest (Brandon): 0:11 - 0:41
+
 Natural language processing (Gautam): 2:56 - 5:30
+
 Neural Network Model (Jerome): 0:41 - 2:30
 
 (Keep in mind it takes a few minutes to run the neural network models and natural language processing models so please be patient.)
