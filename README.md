@@ -110,7 +110,7 @@ One potential optimization is to export the fitted `standardscaler()` model and 
 See the models in action! Check out the following time ranges in the video to see each model in action: 
 
 Random forest (Brandon): 0:11 - 0:41
-Natural language processing / Wine by the Numbers (Gautam): 2:56 - 5:30
+Natural language processing (Gautam): 2:56 - 5:30
 Neural Network Model (Jerome): 0:41 - 2:30
 
 (Keep in mind it takes a few minutes to run the neural network models and natural language processing models so please be patient.)
